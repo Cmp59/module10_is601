@@ -193,6 +193,13 @@ Do not use a production database for tests.
 - [Install Docker Desktop for Mac](https://www.docker.com/products/docker-desktop/)
 - [Install Docker Desktop for Windows](https://www.docker.com/products/docker-desktop/)
 
+## Docker Hub
+
+The image repository is [cmp59/module10-is601](https://hub.docker.com/r/cmp59/module10-is601).
+After tests and the image security scan pass, GitHub Actions publishes the
+image on pushes to `main`. Configure the `DOCKERHUB_USERNAME` and
+`DOCKERHUB_TOKEN` repository secrets before deploying.
+
 ## Build Docker Image
 
 ```bash
