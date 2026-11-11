@@ -128,7 +128,7 @@ cd <repository-directory>
 
 ---
 
-# 🛠️ 4. Install Python 3.10+
+# 🛠️ 4. Install Python 3.11+
 
 ## Install Python
 
@@ -170,6 +170,17 @@ venv\Scripts\activate.bat  # Windows
 ```bash
 pip install -r requirements.txt
 ```
+
+### Running tests
+
+GitHub Actions starts an isolated PostgreSQL 17 service and runs the unit,
+database integration, and browser tests. PostgreSQL tests create temporary
+schemas and require a test database user with permission to create schemas.
+To run them locally, set `TEST_DATABASE_URL` to a disposable PostgreSQL
+database, install Chromium with `python -m playwright install chromium`,
+and run `python -m pytest tests/unit/ tests/integration/ tests/e2e/`.
+When `TEST_DATABASE_URL` is not set, PostgreSQL-specific tests are skipped.
+Do not use a production database for tests.
 
 ---
 
@@ -310,7 +321,7 @@ Then submit the GitHub repository link as instructed.
 
 - Install **Homebrew** first on Mac.
 - Install and configure **Git** and **SSH** before cloning.
-- Use **Python 3.10+** and **virtual environments** for Python projects.
+- Use **Python 3.11+** and **virtual environments** for Python projects.
 - **Docker** is optional depending on the project.
 
 ---
