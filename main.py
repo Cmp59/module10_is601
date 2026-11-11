@@ -6,6 +6,9 @@ from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, Field, field_validator  # Use @validator for Pydantic 1.x
 from fastapi.exceptions import RequestValidationError
 from app.operations import add, subtract, multiply, divide  # Ensure correct import path
+from app.database import get_engine
+from sqlalchemy import text
+from sqlalchemy.exc import SQLAlchemyError
 import uvicorn
 import logging
 
@@ -62,6 +65,16 @@ async def read_root(request: Request):
     Serve the index.html template.
     """
     return templates.TemplateResponse(request, "index.html")
+
+@app.get("/health")
+def health_check():
+    try:
+        with get_engine().connect() as connection:
+            connection.execute(text("SELECT 1"))
+    except (RuntimeError, SQLAlchemyError) as exc:
+        logger.error("Database health check failed: %s", type(exc).__name__)
+        raise HTTPException(status_code=503, detail="Database unavailable") from exc
+    return {"status": "ok"}
 
 @app.post("/add", response_model=OperationResponse, responses={400: {"model": ErrorResponse}})
 async def add_route(operation: OperationRequest):

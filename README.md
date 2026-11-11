@@ -198,6 +198,32 @@ docker run -it --rm <image-name>
 
 # 🚀 6. Running the Project
 
+## PostgreSQL connection
+
+Start Docker Desktop, then from the project directory run:
+
+```bash
+docker compose up --build
+```
+
+Compose supplies the web service with connection settings for the PostgreSQL
+`db` service. Visit `http://localhost:8000/health` to check the connection; it
+returns HTTP 503 when the database is unavailable. The calculator routes
+do not require a database connection.
+
+The Compose database credentials are development defaults, not production
+secrets. `POSTGRES_USER`, `POSTGRES_PASSWORD`, and `POSTGRES_DB` can be set
+in the environment before starting Compose. Existing PostgreSQL volumes
+retain their original credentials and database; changing these variables
+does not update an already initialized volume.
+
+When running the app outside Docker, set `DATABASE_URL` to a PostgreSQL URL,
+for example `postgresql+psycopg://USER:PASSWORD@localhost:5432/fastapi_db`
+(percent-encode URL-special characters in the username and password).
+Alternatively, supply `DATABASE_HOST`, `POSTGRES_USER`, `POSTGRES_PASSWORD`,
+and `POSTGRES_DB` (port 5432). Setting up the connection does not create or
+modify any tables.
+
 - **Without Docker**:
 
 ```bash
