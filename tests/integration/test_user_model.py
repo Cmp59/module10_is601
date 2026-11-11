@@ -68,7 +68,7 @@ def test_usernames_and_emails_are_unique(user_session, username, email):
             user_session.flush()
 
 
-@pytest.mark.parametrize("missing", ["username", "email", "password_hash"])
+@pytest.mark.parametrize("missing", ["username", "email"])
 def test_required_user_fields_cannot_be_null(user_session, missing):
     values = {"username": "alice", "email": "alice@example.com", "password_hash": "test-hash"}
     values[missing] = None
@@ -76,3 +76,10 @@ def test_required_user_fields_cannot_be_null(user_session, missing):
         with user_session.begin_nested():
             user_session.add(User(**values))
             user_session.flush()
+
+
+def test_legacy_user_can_have_no_password_hash(user_session):
+    user = User(username="legacy", email="legacy@example.com", password_hash=None)
+    user_session.add(user)
+    user_session.flush()
+    assert user_session.get(User, user.id).password_hash is None

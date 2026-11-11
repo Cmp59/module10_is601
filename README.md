@@ -224,12 +224,23 @@ Alternatively, supply `DATABASE_HOST`, `POSTGRES_USER`, `POSTGRES_PASSWORD`,
 and `POSTGRES_DB` (port 5432). Setting up the connection does not create or
 modify any tables.
 
-The SQLAlchemy `User` model is defined in `app/models.py`. Its
-`password_hash` column is required, and `username` and `email` are unique.
-The model does not hash passwords itself or automatically create tables.
-The Module 9 `users` table has no `password_hash` column, so an existing
-database needs a migration before it can use this model. Do not drop that
-table: existing calculations may reference its users.
+The SQLAlchemy `User` model is defined in `app/models.py`. Usernames and
+emails are unique. The model does not hash passwords or create tables
+automatically.
+
+### Migrating a Module 9 database
+
+The Module 9 `users` table has no `password_hash` column. Before using the
+model with an existing Module 9 database, back it up, select the intended
+database in pgAdmin, and run `sql/06_migrate_users_password_hash.sql` in
+the Query Tool. This adds a nullable column without deleting users or
+calculations. It is safe to run again. For a fresh database, first create
+the Module 9 tables with `sql/01_create_tables.sql`, then run the migration.
+
+Existing users will have a NULL password hash, not a usable password. They
+must not be authenticated until a secure password setup process is added.
+The database permits NULL so legacy records can be preserved; the upcoming
+user-creation code must require and hash passwords for all new users.
 
 - **Without Docker**:
 
