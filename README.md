@@ -1,3 +1,17 @@
+## quick instructions
+
+- open a terminal in the project folder and start docker desktop.
+- run `docker compose up --build` to start the app, database, and pgadmin.
+- open the app at http://localhost:8000, the api docs at http://localhost:8000/docs, and pgadmin at http://localhost:5050.
+- for user creation, set up the tables using the migration instructions below.
+- to test locally on windows, install python 3.11 or newer and run `python -m venv .venv`, then `.\.venv\scripts\python.exe -m pip install -r requirements.txt`.
+- create a separate disposable postgresql test database and set `$env:TEST_DATABASE_URL` to its connection url. the test database user must be able to create schemas. do not use a production database.
+- install the browser for the tests with `.\.venv\scripts\python.exe -m playwright install chromium`.
+- stop the app using port 8000 before running browser tests, then run `.\.venv\scripts\python.exe -m pytest tests/unit/ tests/integration/ tests/e2e/`. database tests are skipped if `TEST_DATABASE_URL` is not set.
+- the published image is at [cmp59/module10-is601](https://hub.docker.com/r/cmp59/module10-is601).
+
+---
+
 # 📦 Project Setup
 
 ---
