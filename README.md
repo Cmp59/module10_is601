@@ -239,14 +239,24 @@ the Module 9 tables with `sql/01_create_tables.sql`, then run the migration.
 
 Existing users will have a NULL password hash, not a usable password. They
 must not be authenticated until a secure password setup process is added.
-The database permits NULL so legacy records can be preserved; the upcoming
-user-creation code must require and hash passwords for all new users.
+The database permits NULL so legacy records can be preserved; user creation
+requires and hashes passwords for all new users.
 
 `app/schemas.py` defines `UserCreate` and `UserRead`. New-user input requires
 a username, valid email, and nonempty password; the username and normalized
 email must fit the database column lengths. `UserRead` can serialize existing
-SQLAlchemy users without exposing their password hashes. These schemas do not
-yet create users or hash passwords; those are implemented in later steps.
+SQLAlchemy users without exposing their password hashes. `app/security.py`
+provides Argon2 password hashing and verification. A legacy user with no
+password hash cannot pass verification.
+
+### Creating a user
+
+After creating and migrating the tables as described above, use
+`http://localhost:8000/docs` to call `POST /users` with a username, email,
+and password. A successful response has status 201 and includes the user ID,
+username, email, and creation time, but no password or hash. Invalid inputs
+return 400; duplicate usernames or emails return 409. User registration does
+not implement login or password recovery.
 
 - **Without Docker**:
 

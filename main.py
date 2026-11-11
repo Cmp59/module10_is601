@@ -1,14 +1,18 @@
 # main.py
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, Field, field_validator  # Use @validator for Pydantic 1.x
 from fastapi.exceptions import RequestValidationError
 from app.operations import add, subtract, multiply, divide  # Ensure correct import path
-from app.database import get_engine
+from app.database import get_db, get_engine
+from app.models import User
+from app.schemas import UserCreate, UserRead
+from app.security import hash_password
 from sqlalchemy import text
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from sqlalchemy.orm import Session
 import uvicorn
 import logging
 
@@ -75,6 +79,28 @@ def health_check():
         logger.error("Database health check failed: %s", type(exc).__name__)
         raise HTTPException(status_code=503, detail="Database unavailable") from exc
     return {"status": "ok"}
+
+@app.post("/users", response_model=UserRead, status_code=201, responses={409: {"model": ErrorResponse}})
+def create_user(user_data: UserCreate, db: Session = Depends(get_db)):
+    user = User(
+        username=user_data.username,
+        email=user_data.email,
+        password_hash=hash_password(user_data.password),
+    )
+    db.add(user)
+    try:
+        db.commit()
+    except IntegrityError as exc:
+        db.rollback()
+        constraint = getattr(getattr(exc.orig, "diag", None), "constraint_name", None)
+        if getattr(exc.orig, "sqlstate", None) == "23505" and constraint in {
+            "users_username_key", "users_email_key"
+        }:
+            raise HTTPException(status_code=409, detail="Username or email already exists") from exc
+        logger.error("User creation failed due to a database integrity error")
+        raise
+    db.refresh(user)
+    return user
 
 @app.post("/add", response_model=OperationResponse, responses={400: {"model": ErrorResponse}})
 async def add_route(operation: OperationRequest):
