@@ -224,6 +224,13 @@ Alternatively, supply `DATABASE_HOST`, `POSTGRES_USER`, `POSTGRES_PASSWORD`,
 and `POSTGRES_DB` (port 5432). Setting up the connection does not create or
 modify any tables.
 
+The SQLAlchemy `User` model is defined in `app/models.py`. Its
+`password_hash` column is required, and `username` and `email` are unique.
+The model does not hash passwords itself or automatically create tables.
+The Module 9 `users` table has no `password_hash` column, so an existing
+database needs a migration before it can use this model. Do not drop that
+table: existing calculations may reference its users.
+
 - **Without Docker**:
 
 ```bash
