@@ -242,6 +242,12 @@ must not be authenticated until a secure password setup process is added.
 The database permits NULL so legacy records can be preserved; the upcoming
 user-creation code must require and hash passwords for all new users.
 
+`app/schemas.py` defines `UserCreate` and `UserRead`. New-user input requires
+a username, valid email, and nonempty password; the username and normalized
+email must fit the database column lengths. `UserRead` can serialize existing
+SQLAlchemy users without exposing their password hashes. These schemas do not
+yet create users or hash passwords; those are implemented in later steps.
+
 - **Without Docker**:
 
 ```bash
